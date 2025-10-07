@@ -5,7 +5,8 @@
 			"sources": [
 				"src/addon.cpp",
 				"src/pcsclite.cpp",
-				"src/cardreader.cpp"
+				"src/cardreader.cpp",
+				"src/constants.cpp"
 			],
 			"cflags": [
 				"-Wall",

@@ -23,10 +23,11 @@ void PCSCLite::init(Local<Object> target) {
     Nan::Set(target, Nan::New("PCSCLite").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
 }
 
-PCSCLite::PCSCLite(): m_card_context(0),
+PCSCLite::PCSCLite(DWORD scope): m_card_context(0),
                       m_card_reader_state(),
                       m_status_thread(0),
-                      m_state(0) {
+                      m_state(0),
+					  m_scope(scope) {
 
     assert(uv_mutex_init(&m_mutex) == 0);
     assert(uv_cond_init(&m_cond) == 0);
@@ -67,15 +68,12 @@ PCSCLite::PCSCLite(): m_card_context(0),
 postServiceCheck:
 #endif // _WIN32
 
-    LONG result;
-    // TODO: consider removing this do-while Windows workaround that should not be needed anymore
-    do {
-        // TODO: make dwScope (now hard-coded to SCARD_SCOPE_SYSTEM) customisable
-        result = SCardEstablishContext(SCARD_SCOPE_SYSTEM,
-                                            NULL,
-                                            NULL,
-                                            &m_card_context);
-    } while(result == SCARD_E_NO_SERVICE || result == SCARD_E_SERVICE_STOPPED);
+    // TODO: make dwScope (now hard-coded to SCARD_SCOPE_SYSTEM) customisable
+    LONG result = SCardEstablishContext(SCARD_SCOPE_SYSTEM,
+                                        NULL,
+                                        NULL,
+                                        &m_card_context);
+                                        
     if (result != SCARD_S_SUCCESS) {
         Nan::ThrowError(error_msg("SCardEstablishContext", result).c_str());
     } else {
@@ -111,7 +109,11 @@ PCSCLite::~PCSCLite() {
 
 NAN_METHOD(PCSCLite::New) {
     Nan::HandleScope scope;
-    PCSCLite* obj = new PCSCLite();
+
+	DWORD pcsc_scope = Nan::To<uint32_t>(info[0]).FromJust();
+
+    PCSCLite* obj = new PCSCLite(pcsc_scope);
+
     obj->Wrap(info.Holder());
     info.GetReturnValue().Set(info.Holder());
 }
@@ -340,7 +342,7 @@ LONG PCSCLite::get_card_readers(PCSCLite* pcsclite, AsyncResult* async_result) {
 #endif
         if (result == SCARD_E_NO_SERVICE || result == SCARD_E_SERVICE_STOPPED) {
             SCardReleaseContext(pcsclite->m_card_context);
-            SCardEstablishContext(SCARD_SCOPE_SYSTEM, NULL, NULL, &pcsclite->m_card_context);
+            SCardEstablishContext(pcsclite->m_scope, NULL, NULL, &pcsclite->m_card_context);
             result = get_card_readers(pcsclite, async_result);
         }
     } else {

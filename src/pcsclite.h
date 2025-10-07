@@ -32,7 +32,7 @@ class PCSCLite: public Nan::ObjectWrap {
 
     private:
 
-        PCSCLite();
+        PCSCLite(DWORD scope);
 
         ~PCSCLite();
 
@@ -56,6 +56,7 @@ class PCSCLite: public Nan::ObjectWrap {
         uv_cond_t m_cond;
         bool m_pnp;
         int m_state;
+		DWORD m_scope;
         static Nan::AsyncResource *async_resource;
 };
 

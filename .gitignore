@@ -37,3 +37,4 @@ node_modules/
 
 # built Node.js C++ addon
 /build/
+/*.tgz

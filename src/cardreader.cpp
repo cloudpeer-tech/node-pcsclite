@@ -64,10 +64,11 @@ void CardReader::init(Local<Object> target) {
     Nan::Set(target, Nan::New("CardReader").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
 }
 
-CardReader::CardReader(const std::string &reader_name): m_card_context(0),
+CardReader::CardReader(const std::string &reader_name, DWORD scope): m_card_context(0),
                                                         m_card_handle(0),
                                                         m_name(reader_name),
-                                                        m_state(0) {
+                                                        m_state(0),
+														m_scope(scope) {
     assert(uv_mutex_init(&m_mutex) == 0);
     assert(uv_cond_init(&m_cond) == 0);
 }
@@ -91,8 +92,9 @@ NAN_METHOD(CardReader::New) {
     Nan::HandleScope scope;
 
     Nan::Utf8String reader_name(Nan::To<String>(info[0]).ToLocalChecked());
+	DWORD pcsc_scope = Nan::To<uint32_t>(info[1]).FromJust();
 
-    CardReader* obj = new CardReader(*reader_name);
+    CardReader* obj = new CardReader(*reader_name, pcsc_scope);
     obj->Wrap(info.Holder());
     Nan::Set(obj->handle(), Nan::New(name_symbol), Nan::To<String>(info[0]).ToLocalChecked());
     Nan::Set(obj->handle(), Nan::New(connected_symbol), Nan::False());
@@ -389,7 +391,7 @@ void CardReader::HandlerFunction(void* arg) {
     async_baton->async_result = new AsyncResult();
     async_baton->async_result->do_exit = false;
 
-    LONG result = SCardEstablishContext(SCARD_SCOPE_SYSTEM, NULL, NULL, &reader->m_status_card_context);
+    LONG result = SCardEstablishContext(reader->m_scope, NULL, NULL, &reader->m_status_card_context);
 
     SCARD_READERSTATE card_reader_state = SCARD_READERSTATE();
     card_reader_state.szReader = reader->m_name.c_str();
@@ -440,7 +442,7 @@ void CardReader::DoConnect(uv_work_t* req) {
     uv_mutex_lock(&obj->m_mutex);
     /* Is context established */
     if (!obj->m_card_context) {
-        result = SCardEstablishContext(SCARD_SCOPE_SYSTEM, NULL, NULL, &obj->m_card_context);
+        result = SCardEstablishContext(obj->m_scope, NULL, NULL, &obj->m_card_context);
     }
 
     /* Connect */

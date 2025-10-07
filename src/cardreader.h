@@ -93,7 +93,7 @@ class CardReader: public Nan::ObjectWrap {
 
     private:
 
-        CardReader(const std::string &reader_name);
+        CardReader(const std::string &reader_name, DWORD scope);
 
         ~CardReader();
 
@@ -132,6 +132,7 @@ class CardReader: public Nan::ObjectWrap {
         uv_mutex_t m_mutex;
         uv_cond_t m_cond;
         int m_state;
+		DWORD m_scope;
         static Nan::AsyncResource *async_resource;
 };
 
