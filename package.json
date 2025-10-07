@@ -1,6 +1,6 @@
 {
   "name": "@cloudpeer/pcsclite",
-  "version": "0.7.3",
+  "version": "0.7.4",
   "description": "Bindings over PC/SC to access Smart Cards",
   "keywords": [
     "nfc",
@@ -47,7 +47,7 @@
     "test": "mocha --exit"
   },
   "dependencies": {
-    "nan": "^2.18.0"
+    "nan": "^2.23.0"
   },
   "devDependencies": {
     "mocha": "^10.2.0",
