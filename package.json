@@ -1,6 +1,6 @@
 {
   "name": "@cloudpeer/pcsclite",
-  "version": "0.7.4",
+  "version": "0.7.9",
   "description": "Bindings over PC/SC to access Smart Cards",
   "keywords": [
     "nfc",
