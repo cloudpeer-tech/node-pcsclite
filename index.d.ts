@@ -106,4 +106,11 @@ export interface CardReader extends EventEmitter {
 	close(): void;
 }
 
-export default function pcsc(): PCSCLite;
+export const SCARD_SCOPE_USER: number;
+export const SCARD_SCOPE_TERMINAL: number;
+export const SCARD_SCOPE_SYSTEM: number;
+export const SCARD_SCOPE_GLOBAL: number;
+
+export default function pcsc(options: {
+	scope: typeof SCARD_SCOPE_USER | typeof SCARD_SCOPE_TERMINAL | typeof SCARD_SCOPE_SYSTEM | typeof SCARD_SCOPE_GLOBAL
+}): PCSCLite;
