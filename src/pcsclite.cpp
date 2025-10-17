@@ -67,9 +67,8 @@ PCSCLite::PCSCLite(DWORD scope): m_card_context(0),
     }
 postServiceCheck:
 #endif // _WIN32
-
     // TODO: make dwScope (now hard-coded to SCARD_SCOPE_SYSTEM) customisable
-    LONG result = SCardEstablishContext(SCARD_SCOPE_SYSTEM,
+    LONG result = SCardEstablishContext(scope,
                                         NULL,
                                         NULL,
                                         &m_card_context);
